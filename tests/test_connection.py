@@ -39,7 +39,7 @@ def client():
 
 @pytest.fixture()
 def network_env():
-    network_env = MetasploitNetworkEnv()  # maybe host config as argument here
+    network_env = MetasploitNetworkEnv(reset_function=None)  # maybe host config as argument here
     yield network_env
     network_env.reset()
 
@@ -57,7 +57,7 @@ def test_db_connection(client):
     :return:
     """
     default_workspace_hosts = client.db.workspaces.list[0]
-    assert default_workspace_hosts["name"] == "default"
+    assert default_workspace_hosts["name"] == "metasploitgym"
 
 
 def test_network_scan(network_env):

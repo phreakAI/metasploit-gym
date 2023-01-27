@@ -111,7 +111,7 @@ class MetasploitEnv(Env):
 
 class MetasploitNetworkEnv(MetasploitEnv):
     def __init__(
-        self, reset_function, max_subnets=1, max_hosts_per_subnet=1, total_hosts=1
+        self, reset_function, initial_host="127.0.0.1", max_subnets=1, max_hosts_per_subnet=1, total_hosts=1
     ):
         super().__init__()
         load_dotenv()
@@ -121,7 +121,7 @@ class MetasploitNetworkEnv(MetasploitEnv):
         self.client.db.workspaces.set("metasploitgym")
         self.total_hosts = total_hosts
         # TODO: Replace this with CIDR address later
-        self.target_host = os.getenv("TARGET_HOST", default=None)
+        self.target_host = initial_host
         if self.target_host is None:
             raise ValueError(
                 "Set TARGET_HOST in .env to use the metasploit network env"
