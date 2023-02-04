@@ -30,9 +30,7 @@ if METASPLOIT_HOST is None or METASPLOIT_PORT is None or METASPLOIT_PASS is None
 
 @pytest.fixture()
 def client():
-    client = MsfRpcClient(
-        METASPLOIT_PASS, server=METASPLOIT_HOST, port=METASPLOIT_PORT, ssl=True
-    )
+    client = MsfRpcClient(METASPLOIT_PASS, server=METASPLOIT_HOST, port=METASPLOIT_PORT, ssl=True)
     yield client
     client.call(MsfRpcMethod.AuthLogout)
 

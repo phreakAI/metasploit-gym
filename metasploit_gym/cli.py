@@ -25,7 +25,7 @@ def _get_args():
 
 
 def random_agent_env():
-    env = metasploit_gym.make("Metasploit-v0")
+    env = metasploit_gym.make("metasploit_gym:MetasploitNetworkEnv-v0")
     env.reset()
     score = 0
     while True:

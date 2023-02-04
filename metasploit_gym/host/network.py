@@ -5,13 +5,13 @@ from .utils import SERVICES_TCP, REWARDS
 
 
 class Network:
-    """Collect of Hosts objects, with helper functions for comparing them
-    """
-    def __init__(self, max_subnets, max_hosts_per_subnet):
+    """Collect of Hosts objects, with helper functions for comparing them"""
+
+    def __init__(self, max_subnets, max_hosts_per_subnet, num_exploits):
         self.hosts = []
         self.max_subnets = max_subnets
         self.max_hosts_per_subnet = max_hosts_per_subnet
-        self.num_exploits = len(Exploit.__subclasses__())
+        self.num_exploits = num_exploits
         self.host_vector_size = self.calculate_host_vector_size()
 
     def max_reward(self):
@@ -39,7 +39,7 @@ class Network:
                 return False
 
     def compare_updated_host(self, updated_host):
-        """Pulls clean data from Metasploits database to see if the last action earned 
+        """Pulls clean data from Metasploits database to see if the last action earned
            any reward for the host
 
         Args:
@@ -187,15 +187,11 @@ class Network:
         generate network
         """
         # TODO: handle lookups for larger subnet amounts
-        network_tensor = np.zeros(
-            (self.max_subnets + self.max_hosts_per_subnet, len(hosts))
-        )
+        network_tensor = np.zeros((self.max_subnets + self.max_hosts_per_subnet, len(hosts)))
         return network_tensor
 
     def _os_tensor(self, hosts):
-        os_tensor = np.zeros(
-            (2, len(hosts))
-        )  # two OSs, first is Windows second is Linux
+        os_tensor = np.zeros((2, len(hosts)))  # two OSs, first is Windows second is Linux
         for i in range(len(hosts)):
             host = hosts[i]
             os_tensor[1, i] = 1.0  # setup Linux

@@ -110,9 +110,7 @@ class MetasploitEnv(Env):
 
 
 class MetasploitNetworkEnv(MetasploitEnv):
-    def __init__(
-        self, reset_function, initial_host="127.0.0.1", max_subnets=1, max_hosts_per_subnet=1, total_hosts=1
-    ):
+    def __init__(self, reset_function, initial_host="127.0.0.1", max_subnets=1, max_hosts_per_subnet=1, total_hosts=1):
         super().__init__()
         load_dotenv()
         self.environment_reset_function = reset_function
@@ -123,9 +121,7 @@ class MetasploitNetworkEnv(MetasploitEnv):
         # TODO: Replace this with CIDR address later
         self.target_host = initial_host
         if self.target_host is None:
-            raise ValueError(
-                "Set TARGET_HOST in .env to use the metasploit network env"
-            )
+            raise ValueError("Set TARGET_HOST in .env to use the metasploit network env")
         self.host_dict = {self.target_host: (0, 0)}  # map vector to IP
         self.tcp_services = dict()  # list of all services, and a 1 if it's up
         self.udp_services = dict()
@@ -133,33 +129,24 @@ class MetasploitNetworkEnv(MetasploitEnv):
         self.loot = dict()
         self.max_subnets = max_subnets
         self.max_hosts_per_subnet = max_hosts_per_subnet
-        self.action_space = FlatActionSpace(
-            max_subnets=max_subnets, max_hosts_per_subnet=max_hosts_per_subnet
-        )
+        self.action_space = FlatActionSpace(max_subnets=max_subnets, max_hosts_per_subnet=max_hosts_per_subnet)
         self.network = Network(
             max_subnets=max_subnets,
             max_hosts_per_subnet=max_hosts_per_subnet,
+            num_exploits=len(self.action_space),
         )
-        self.observation_space = spaces.Box(
-            low=0, high=self.network.max_reward(), shape=self.network.vectorize().shape
-        )
+        self.observation_space = spaces.Box(low=0, high=self.network.max_reward(), shape=self.network.vectorize().shape)
 
     def create_client(self):
         metasploit_pass = os.getenv("METASPLOIT_PASSWORD", default=None)
         metasploit_port = os.getenv("METASPLOIT_PORT", default=None)
         metasploit_host = os.getenv("METASPLOIT_HOST", default=None)
 
-        if (
-            metasploit_host is None
-            or metasploit_port is None
-            or metasploit_pass is None
-        ):
+        if metasploit_host is None or metasploit_port is None or metasploit_pass is None:
             raise ValueError(
                 "Please include a .env file with METASPLOIT_PASS, METASPLOIT_PORT, and METASPLOIT HOST set to the values of the msgrpc service"
             )
-        client = MsfRpcClient(
-            metasploit_pass, server=metasploit_host, port=metasploit_port, ssl=True
-        )
+        client = MsfRpcClient(metasploit_pass, server=metasploit_host, port=metasploit_port, ssl=True)
         return client
 
     def calculate_board_address(self, ip):
@@ -205,23 +192,15 @@ class MetasploitNetworkEnv(MetasploitEnv):
                 hostname = session_keys[sid]["target_host"]
                 open_console_sessions[hostname] = session_keys[sid]
 
-        hosts = (
-            self.client.db.workspaces.current.hosts.list
-        )  # list of hosts we know about
+        hosts = self.client.db.workspaces.current.hosts.list  # list of hosts we know about
         for host in hosts:
             address = host["address"]
             services = self.client.db.workspaces.current.services.find(
                 addresses=[address]
             )  # list of services for those hosts
-            vulns = self.client.db.workspaces.current.vulns.find(
-                addresses=[address]
-            )  # list of exploited vulns so far
-            loot = self.client.db.workspaces.current.loots.find(
-                addresses=[address]
-            )  # loot taken from machines
-            creds = self.client.db.workspaces.current.creds.find(
-                addresses=[address]
-            )  # credentials discovered
+            vulns = self.client.db.workspaces.current.vulns.find(addresses=[address])  # list of exploited vulns so far
+            loot = self.client.db.workspaces.current.loots.find(addresses=[address])  # loot taken from machines
+            creds = self.client.db.workspaces.current.creds.find(addresses=[address])  # credentials discovered
             if address in open_meterpreter_sessions:
                 has_session = 1
             else:
@@ -262,19 +241,13 @@ class MetasploitNetworkEnv(MetasploitEnv):
         :return: Observation, reward, done, debug info
         """
         if not issubclass(type(action), Action):
-            raise TypeError(
-                "Only actions of type Action can be processed by the MetasploitNetworkEnv"
-            )
-        board_addr_to_host = dict(
-            [(value, key) for key, value in self.host_dict.items()]
-        )
+            raise TypeError("Only actions of type Action can be processed by the MetasploitNetworkEnv")
+        board_addr_to_host = dict([(value, key) for key, value in self.host_dict.items()])
 
         if action.target in board_addr_to_host:
             host_addr = board_addr_to_host[action.target]
         else:
-            raise KeyError(
-                f"Chosen target {action.target} does not exist in current host_dict"
-            )
+            raise KeyError(f"Chosen target {action.target} does not exist in current host_dict")
         print(action)
         action.execute(self.client, host_addr)
         time.sleep(5)  # let end of execution play out, for example VSFTPD
@@ -353,9 +326,7 @@ class FlatActionSpace(spaces.Discrete):
 
     def get_action(self, action_idx):
         """Action has to be an index"""
-        assert isinstance(
-            action_idx, int
-        ), "When using a flat action space must be an integer"
+        assert isinstance(action_idx, int), "When using a flat action space must be an integer"
         assert action_idx <= len(self.actions) - 1, "Action can't be longer than list"
         return self.actions[action_idx]
 
