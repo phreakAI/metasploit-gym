@@ -38,7 +38,7 @@ short_description = "A gymnasium environment for metasploit pentesting software.
 REQUIRED_PACKAGES = [
     "gymnasium ~= 0.27.1",
     "numpy ~= 1.21.0",
-    "pymetasploit3 ~= 1.0.3",
+    "git+https://github.com/DanMcInerney/pymetasploit3.git",
 ]
 
 # Packages which are only needed for testing code.
